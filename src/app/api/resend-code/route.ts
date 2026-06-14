@@ -9,7 +9,6 @@ export async function POST(request: Request) {
     const { username } = await request.json();
     const decodedUsername = decodeURIComponent(username);
 
-    // Find the user by their username
     const user = await UserModel.findOne({ username: decodedUsername });
 
     if (!user) {
@@ -26,21 +25,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Generate a fresh 6-digit verification code
     const newVerifyCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
 
-    // 2. Set new expiry time (Current time + 1 Hour)
     const newExpiryDate = new Date();
     newExpiryDate.setHours(newExpiryDate.getHours() + 1);
 
-    // 3. Update user model fields
     user.verifyCode = newVerifyCode;
     user.verifyCodeExpiry = newExpiryDate;
     await user.save();
 
-    // 4. Fire the actual email trigger using your helper
     const emailResponse = await sendVerificationEmail(
       user.email,
       user.username,

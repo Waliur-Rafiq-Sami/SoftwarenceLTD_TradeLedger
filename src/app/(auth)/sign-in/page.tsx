@@ -4,26 +4,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+
 import { signInSchema } from "@/schemas/signInSchema";
 import ThemeToggle from "@/components/ThemeToggle";
+import { toast } from "@/lib/toast-service";
 
 export default function SignInForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -33,32 +29,42 @@ export default function SignInForm() {
     },
   });
 
-  const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    const result = await signIn("credentials", {
-      redirect: false,
-      identifier: data.identifier,
-      password: data.password,
-    });
+    setIsLoading(true);
 
-    if (result?.error) {
-      if (result.error === "CredentialsSignin") {
-        toast({
-          title: "Login Failed",
-          description: "Incorrect username or password",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: result.error,
-          variant: "destructive",
-        });
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        identifier: data.identifier,
+        password: data.password,
+      });
+
+      if (result?.error) {
+        if (result.error === "CredentialsSignin" || result.error === "Incorrect password") {
+          toast.error({
+            title: "Unable to sign in",
+            description: "Please check your email/username and password.",
+          });
+        } else {
+          toast.error({
+            title: "Something went wrong",
+            description: "Please try again in a moment.",
+          });
+        }
+
+        return;
       }
-    }
 
-    if (result?.url) {
-      router.replace("/dashboard");
+      if (result?.url) {
+        toast.success({
+          title: "Welcome back!",
+          description: "Successfully signed in.",
+        });
+
+        router.replace("/dashboard");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,16 +75,13 @@ export default function SignInForm() {
           <ThemeToggle />
         </div>
         <div className="space-y-4 pb-6 border-b border-border/50">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Softwarence LTD
-          </p>
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Softwarence LTD</p>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
             Welcome back to Trade
             <span className="text-primary">Ledger</span>
           </h1>
           <p className="max-w-xl text-sm leading-7 text-muted-foreground">
-            Professional enterprise-grade share ledger for modern trade operations.
-            Log in securely and continue where you left off.
+            Professional enterprise-grade share ledger for modern trade operations. Log in securely and continue where you left off.
           </p>
         </div>
         <Form {...form}>
@@ -89,7 +92,7 @@ export default function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email/Username</FormLabel>
-                  <Input {...field} placeholder="Username or email" />
+                  <Input {...field} disabled={isLoading} placeholder="Username or email" />
                   <FormMessage />
                 </FormItem>
               )}
@@ -102,6 +105,7 @@ export default function SignInForm() {
                   <FormLabel>Password</FormLabel>
                   <div className="relative">
                     <Input
+                      disabled={isLoading}
                       type={showPassword ? "text" : "password"}
                       {...field}
                       className="pr-12"
@@ -109,23 +113,26 @@ export default function SignInForm() {
                     />
                     <button
                       type="button"
+                      disabled={isLoading}
                       onClick={() => setShowPassword((current) => !current)}
                       className="absolute inset-y-0 right-3 flex items-center text-muted-foreground transition hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
+                      aria-label={showPassword ? "Hide password" : "Show password"}>
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="w-full py-3 text-base font-semibold" type="submit">
-              Sign In
+            <Button type="submit" disabled={isLoading} className="w-full py-3 text-base font-semibold">
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
         </Form>

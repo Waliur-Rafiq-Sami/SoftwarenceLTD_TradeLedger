@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "../context/AuthProvider";
-import { Toaster } from "@/components/ui/toaster";
+import QueryProvider from "../context/QueryProvider";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,8 +23,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <QueryProvider>{children}</QueryProvider>
+            <Toaster
+              position="top-center"
+              expand={false}
+              closeButton={false}
+              visibleToasts={3}
+              toastOptions={{
+                unstyled: true,
+              }}
+            />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -9,20 +9,13 @@ import { useDebounce } from "usehooks-ts";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import axios, { AxiosError } from "axios";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import ThemeToggle from "@/components/ThemeToggle";
+import { toast } from "@/lib/toast-service";
 
 export default function SignUpForm() {
   const [username, setUsername] = useState("");
@@ -32,7 +25,6 @@ export default function SignUpForm() {
   const debouncedUsername = useDebounce(username, 300);
 
   const router = useRouter();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -52,17 +44,18 @@ export default function SignUpForm() {
     const checkUsernameUnique = async () => {
       if (debouncedUsername) {
         setIsCheckingUsername(true);
-        setUsernameMessage(""); // Reset message
+        setUsernameMessage("");
         try {
-          const response = await axios.get<ApiResponse>(
-            `/api/check-username-unique?username=${debouncedUsername}`,
-          );
-          setUsernameMessage(response.data.message);
-        } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage(
-            axiosError.response?.data.message ?? "Error checking username",
-          );
+          const res = await fetch(`/api/check-username-unique?username=${encodeURIComponent(debouncedUsername)}`);
+          const data: ApiResponse = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.message || "Error checking username");
+          }
+
+          setUsernameMessage(data.message);
+        } catch (error: any) {
+          setUsernameMessage(error.message || "Error checking username");
         } finally {
           setIsCheckingUsername(false);
         }
@@ -71,47 +64,53 @@ export default function SignUpForm() {
     checkUsernameUnique();
   }, [debouncedUsername]);
 
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post<ApiResponse>("/api/sign-up", data);
+      const res = await fetch("/api/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
 
+      const data: ApiResponse = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "There was a problem with your sign-up.");
+      }
+
+      // FIX 1: Store the EMAIL as the identifier, not the username
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
           "tradeledger_pending_signup_credentials",
           JSON.stringify({
-            identifier: data.username,
-            password: data.password,
+            identifier: values.email,
+            password: values.password,
           }),
         );
       }
 
-      toast({
+      toast.success({
         title: "Success",
-        description: response.data.message,
+        description: data.message,
       });
 
-      router.replace(`/verify/${username}`);
-
-      setIsSubmitting(false);
-    } catch (error) {
+      // FIX 2: Pass the email in the URL as a search parameter
+      router.replace(`/verify/${encodeURIComponent(values.username)}?email=${encodeURIComponent(values.email)}`);
+    } catch (error: any) {
       console.error("Error during sign-up:", error);
-
-      const axiosError = error as AxiosError<ApiResponse>;
-
-      // Default error message
-      let errorMessage = axiosError.response?.data.message;
-      ("There was a problem with your sign-up. Please try again.");
-
-      toast({
+      toast.error({
         title: "Sign Up Failed",
-        description: errorMessage,
-        variant: "destructive",
+        description: error.message,
       });
-
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  const isUsernameValid = usernameMessage === "Username is unique";
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-background text-foreground px-4 py-10">
@@ -120,44 +119,59 @@ export default function SignUpForm() {
           <ThemeToggle />
         </div>
         <div className="space-y-4 pb-6 border-b border-border/50">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Softwarence LTD
-          </p>
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Softwarence LTD</p>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
             Create your Trade<span className="text-primary">Ledger</span> account
           </h1>
           <p className="max-w-xl text-sm leading-7 text-muted-foreground">
-            Welcome to Softwarence LTD. Share your personal details below and
-            start using TradeLedger with a secure, professional signup flow.
+            Welcome to Softwarence LTD. Share your personal details below and start using TradeLedger with a secure, professional signup flow.
           </p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
             <FormField
               name="username"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Username</FormLabel>
-                  <Input
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      setUsername(e.target.value);
-                    }}
-                    placeholder="john_doe"
-                  />
-                  {isCheckingUsername && <Loader2 className="animate-spin" />}
-                  {!isCheckingUsername && usernameMessage && (
-                    <p
-                      className={`text-sm ${
-                        usernameMessage === "Username is unique"
-                          ? "text-green-500"
-                          : "text-red-500"
+                  <div className="relative flex items-center">
+                    <Input
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setUsername(e.target.value);
+                      }}
+                      placeholder="john_doe"
+                      className={`pr-10 transition-all duration-200 ${
+                        username && !isCheckingUsername
+                          ? isUsernameValid
+                            ? "border-green-500/50 focus-visible:ring-green-500/30"
+                            : "border-destructive/50 focus-visible:ring-destructive/30"
+                          : ""
                       }`}
-                    >
-                      {usernameMessage}
-                    </p>
+                    />
+                    <div className="absolute right-3 flex items-center pointer-events-none">
+                      {isCheckingUsername && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                      {!isCheckingUsername &&
+                        username &&
+                        (isUsernameValid ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-500 animate-in fade-in zoom-in-75 duration-200" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-destructive animate-in fade-in zoom-in-75 duration-200" />
+                        ))}
+                    </div>
+                  </div>
+
+                  {!isCheckingUsername && usernameMessage && (
+                    <div
+                      className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border mt-1.5 transition-all duration-200 animate-in fade-in slide-in-from-top-1 ${
+                        isUsernameValid
+                          ? "bg-green-500/5 text-green-600 dark:text-green-400 border-green-500/20"
+                          : "bg-destructive/5 text-red-500 border-destructive/20"
+                      }`}>
+                      <span>{usernameMessage}</span>
+                    </div>
                   )}
                   <FormMessage />
                 </FormItem>
@@ -170,9 +184,7 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <Input {...field} name="email" placeholder="you@company.com" />
-                  <p className="text-muted text-gray-400 text-sm">
-                    We will send you a verification code
-                  </p>
+                  <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">We will send you a verification code</p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -195,11 +207,7 @@ export default function SignUpForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
-                    <Input
-                      {...field}
-                      type="tel"
-                      placeholder="+123 456 7890"
-                    />
+                    <Input {...field} type="tel" placeholder="+123 456 7890" />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -211,10 +219,7 @@ export default function SignUpForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Address</FormLabel>
-                  <Input
-                    {...field}
-                    placeholder="123 Business St, City, Country"
-                  />
+                  <Input {...field} placeholder="123 Business St, City, Country" />
                   <FormMessage />
                 </FormItem>
               )}
@@ -225,10 +230,7 @@ export default function SignUpForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Profession (optional)</FormLabel>
-                  <Input
-                    {...field}
-                    placeholder="Engineer, Doctor, Farmer"
-                  />
+                  <Input {...field} placeholder="Engineer, Doctor, Farmer" />
                   <FormMessage />
                 </FormItem>
               )}
@@ -241,25 +243,13 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      {...field}
-                      name="password"
-                      className="pr-12"
-                    />
+                    <Input type={showPassword ? "text" : "password"} {...field} name="password" className="pr-12" />
                     <button
                       type="button"
                       onClick={() => setShowPassword((current) => !current)}
                       className="absolute inset-y-0 right-3 flex items-center text-muted-foreground transition hover:text-foreground"
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
+                      aria-label={showPassword ? "Hide password" : "Show password"}>
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                   <FormMessage />
@@ -268,27 +258,23 @@ export default function SignUpForm() {
             />
             <Button
               type="submit"
-              className="w-full py-3 text-base font-semibold"
-              disabled={isSubmitting}
-            >
+              className="w-full py-3 text-base font-semibold shadow-md active:scale-[0.98] transition-transform duration-100"
+              disabled={isSubmitting}>
               {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Creating Account...</span>
+                </div>
               ) : (
                 "Sign Up"
               )}
             </Button>
           </form>
         </Form>
-        <div className="text-center mt-4">
-          <p>
+        <div className="text-center mt-6">
+          <p className="text-sm text-muted-foreground">
             Already a member?{" "}
-            <Link
-              href="/sign-in"
-              className="text-primary hover:text-primary/80 font-semibold"
-            >
+            <Link href="/sign-in" className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200">
               Sign in
             </Link>
           </p>
