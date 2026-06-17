@@ -1,4 +1,3 @@
-// components/dashboard/trade-modal/CompanySearch.tsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -76,7 +75,18 @@ export function CompanySearch({
       </div>
 
       {isDropdownOpen && (
-        <div className="absolute top-[100%] left-0 w-full mt-1 bg-white border rounded-xl shadow-lg z-50 max-h-[200px] overflow-y-auto dark:bg-slate-900 dark:border-slate-800 py-1">
+        <div
+          className="absolute top-[100%] left-0 w-full mt-1 bg-white border rounded-sm shadow-xl z-50 max-h-[200px] overflow-y-auto dark:bg-slate-900 dark:border-slate-800 py-1 
+          /* Custom Scrollbar Styles */
+          [&::-webkit-scrollbar]:w-1
+          [&::-webkit-scrollbar-track]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:bg-slate-200        
+          dark:[&::-webkit-scrollbar-thumb]:bg-slate-800
+          [&::-webkit-scrollbar-thumb]:rounded-full  
+          hover:[&::-webkit-scrollbar-thumb]:bg-slate-300
+          dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-700
+          transition-all duration-300"
+        >
           {filteredCompanies.length > 0
             ? filteredCompanies.map((company, idx) => (
                 <button

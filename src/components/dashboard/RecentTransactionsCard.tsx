@@ -9,7 +9,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownToLine, ArrowUpFromLine, ArrowRight } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowRight,
+  MoveRight,
+} from "lucide-react";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
@@ -23,10 +28,28 @@ export function RecentTransactionsCard({
 }) {
   return (
     <Card className="shadow-sm dark:bg-[#0f172a] dark:border-slate-800 flex flex-col h-[450px]">
-      <CardHeader className="pb-3 border-b dark:border-slate-800">
-        <CardTitle className="text-lg text-slate-900 dark:text-white">
-          Recent Transactions
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center gap-2.5">
+          <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50 animate-pulse" />
+          <CardTitle className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            Recent Transactions
+          </CardTitle>
+        </div>
+
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="group h-9 w-9 bg-slate-100/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-800/80 hover:border-indigo-500/30 dark:hover:border-indigo-500/30 rounded-xl shadow-sm hover:shadow-md hover:shadow-indigo-500/5 transition-all duration-300 active:scale-95"
+          title="View All Transactions"
+        >
+          <Link
+            href="/dashboard/transactions"
+            className="flex items-center justify-center"
+          >
+            <MoveRight className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-1 stroke-[2.2]" />
+          </Link>
+        </Button>
       </CardHeader>
 
       {/* Scrollable Content Area */}
@@ -82,22 +105,6 @@ export function RecentTransactionsCard({
           ))}
         </div>
       </CardContent>
-
-      {/* Fixed Footer with Navigation */}
-      <CardFooter className="pt-4 pb-4 border-t dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 rounded-b-xl">
-        <Button
-          asChild
-          variant="ghost"
-          className="w-full text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-        >
-          <Link
-            href="/transactions"
-            className="flex items-center justify-center gap-2"
-          >
-            View All Transactions <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

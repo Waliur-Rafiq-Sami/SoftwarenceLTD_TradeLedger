@@ -39,7 +39,7 @@ const ShareRecordSchema = new Schema<IShareRecord>(
     rate: { type: Number, min: 0 },
 
     grossAmount: { type: Number, required: true },
-    commissionAmount: { type: Number, required: true, default: 0, min: 0 },
+    commissionAmount: { type: Number, required: true, default: 0 },
 
     // The most important field for Ledger reconciliation
     netCashImpact: { type: Number, required: true },
@@ -59,7 +59,7 @@ const ShareRecordSchema = new Schema<IShareRecord>(
   { timestamps: true },
 );
 
-ShareRecordSchema.index({ userId: 1, transactionDate: -1 });
+ShareRecordSchema.index({ userId: 1, transactionDate: -1, companyName: 1 });
 
 export const ShareRecord =
   mongoose.models.ShareRecord ||

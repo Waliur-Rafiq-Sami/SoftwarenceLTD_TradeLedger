@@ -598,7 +598,16 @@
 // export default ControlsFilterEngine;
 
 import React, { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, DollarSign, ChevronDown, ArrowRight, AlertCircle, X, Plus } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  DollarSign,
+  ChevronDown,
+  ArrowRight,
+  AlertCircle,
+  X,
+  Plus,
+} from "lucide-react";
 import { parse, isValid } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -663,8 +672,12 @@ const ControlsFilterEngine = ({
   const startSelectedDate = getParsedDate(startDate);
   const endSelectedDate = getParsedDate(endDate);
 
-  const isDateInvalid = Boolean(startSelectedDate && endSelectedDate && startSelectedDate > endSelectedDate);
-  const isAmountInvalid = Boolean(minAmount && maxAmount && parseFloat(minAmount) > parseFloat(maxAmount));
+  const isDateInvalid = Boolean(
+    startSelectedDate && endSelectedDate && startSelectedDate > endSelectedDate,
+  );
+  const isAmountInvalid = Boolean(
+    minAmount && maxAmount && parseFloat(minAmount) > parseFloat(maxAmount),
+  );
 
   const isSearchDisabled = isDateInvalid || isAmountInvalid;
 
@@ -710,7 +723,9 @@ const ControlsFilterEngine = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end w-full">
         {/* Asset Parameters */}
         <div className="lg:col-span-4 space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">Asset Parameters</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
+            Asset Parameters
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <div className="relative w-full">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/80" />
@@ -727,14 +742,21 @@ const ControlsFilterEngine = ({
               <select
                 value={searchAction}
                 onChange={(e) => setSearchAction(e.target.value)}
-                className="pl-9 pr-10 h-11 bg-background text-foreground border border-input rounded-md w-full text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring appearance-none cursor-pointer relative z-10 shadow-sm opacity-100">
+                className="pl-9 pr-10 h-11 bg-background text-foreground border border-input rounded-md w-full text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring appearance-none cursor-pointer relative z-10 shadow-sm opacity-100"
+              >
                 <option value="ALL" className="bg-popover text-foreground">
                   All Actions
                 </option>
-                <option value="BUY" className="bg-popover text-rose-500 font-semibold">
+                <option
+                  value="BUY"
+                  className="bg-popover text-rose-500 font-semibold"
+                >
                   BUY
                 </option>
-                <option value="SELL" className="bg-popover text-emerald-500 font-semibold">
+                <option
+                  value="SELL"
+                  className="bg-popover text-emerald-500 font-semibold"
+                >
                   SELL
                 </option>
               </select>
@@ -750,25 +772,42 @@ const ControlsFilterEngine = ({
               className={cn(
                 "text-xs font-bold uppercase tracking-wider transition-colors duration-200",
                 isDateInvalid ? "text-red-500" : "text-muted-foreground",
-              )}>
+              )}
+            >
               Timeline Interval
             </label>
             {isDateInvalid && (
               <span className="text-[10px] font-bold text-red-500 flex items-center gap-1 animate-fade-in">
-                <AlertCircle className="h-3 w-3 shrink-0" /> Start date follows end date
+                <AlertCircle className="h-3 w-3 shrink-0" /> Start date follows
+                end date
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-2 w-full">
             <div className="flex-1">
-              <DatePickerField value={startDate} onChange={(val) => setStartDate(val)} isInvalid={isDateInvalid} align="start" />
+              <DatePickerField
+                value={startDate}
+                onChange={(val) => setStartDate(val)}
+                isInvalid={isDateInvalid}
+                align="start"
+              />
             </div>
             <ArrowRight
-              className={cn("h-4 w-4 shrink-0 transition-all duration-200", isDateInvalid ? "text-red-500 rotate-180" : "text-muted-foreground/50")}
+              className={cn(
+                "h-4 w-4 shrink-0 transition-all duration-200",
+                isDateInvalid
+                  ? "text-red-500 rotate-180"
+                  : "text-muted-foreground/50",
+              )}
             />
             <div className="flex-1">
-              <DatePickerField value={endDate} onChange={(val) => setEndDate(val)} isInvalid={isDateInvalid} align="end" />
+              <DatePickerField
+                value={endDate}
+                onChange={(val) => setEndDate(val)}
+                isInvalid={isDateInvalid}
+                align="end"
+              />
             </div>
           </div>
         </div>
@@ -780,12 +819,14 @@ const ControlsFilterEngine = ({
               className={cn(
                 "text-xs font-bold uppercase tracking-wider transition-colors duration-200",
                 isAmountInvalid ? "text-red-500" : "text-muted-foreground",
-              )}>
+              )}
+            >
               Capital Outlay
             </label>
             {isAmountInvalid && (
               <span className="text-[10px] font-bold text-red-500 flex items-center gap-1 animate-fade-in">
-                <AlertCircle className="h-3 w-3 shrink-0" /> Min value exceeds max value
+                <AlertCircle className="h-3 w-3 shrink-0" /> Min value exceeds
+                max value
               </span>
             )}
           </div>
@@ -812,7 +853,12 @@ const ControlsFilterEngine = ({
               />
             </div>
             <ArrowRight
-              className={cn("h-4 w-4 shrink-0 transition-all duration-200", isAmountInvalid ? "text-red-500 rotate-180" : "text-muted-foreground/50")}
+              className={cn(
+                "h-4 w-4 shrink-0 transition-all duration-200",
+                isAmountInvalid
+                  ? "text-red-500 rotate-180"
+                  : "text-muted-foreground/50",
+              )}
             />
             <div className="relative flex-1">
               <DollarSign
@@ -841,14 +887,21 @@ const ControlsFilterEngine = ({
 
       {/* Sort Configuration */}
       <div className="border-t border-border/50 pt-5 mt-2">
-        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-3">Sort Configuration</label>
+        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-3">
+          Sort Configuration
+        </label>
         <div className="grid grid-cols-2 gap-4 max-w-md">
           <div className="relative">
-            <label className="text-[10px] font-bold uppercase text-muted-foreground/70 mb-1 block">Sort Rate</label>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground/70 mb-1 block">
+              Sort Rate
+            </label>
             <select
               value={sortBy === "rate" ? sortOrder || "" : ""}
-              onChange={(e) => onSortChange("rate", e.target.value as "asc" | "desc" | null)}
-              className="pl-3 pr-8 h-11 bg-background border border-input rounded-md w-full text-sm font-medium appearance-none cursor-pointer focus-visible:ring-1">
+              onChange={(e) =>
+                onSortChange("rate", e.target.value as "asc" | "desc" | null)
+              }
+              className="pl-3 pr-8 h-11 bg-background border border-input rounded-md w-full text-sm font-medium appearance-none cursor-pointer focus-visible:ring-1"
+            >
               <option value="">Default</option>
               <option value="asc">Ascending</option>
               <option value="desc">Descending</option>
@@ -856,11 +909,19 @@ const ControlsFilterEngine = ({
             <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-muted-foreground/80 pointer-events-none" />
           </div>
           <div className="relative">
-            <label className="text-[10px] font-bold uppercase text-muted-foreground/70 mb-1 block">Sort Commission</label>
+            <label className="text-[10px] font-bold uppercase text-muted-foreground/70 mb-1 block">
+              Sort Commission
+            </label>
             <select
               value={sortBy === "commission" ? sortOrder || "" : ""}
-              onChange={(e) => onSortChange("commission", e.target.value as "asc" | "desc" | null)}
-              className="pl-3 pr-8 h-11 bg-background border border-input rounded-md w-full text-sm font-medium appearance-none cursor-pointer focus-visible:ring-1">
+              onChange={(e) =>
+                onSortChange(
+                  "commission",
+                  e.target.value as "asc" | "desc" | null,
+                )
+              }
+              className="pl-3 pr-8 h-11 bg-background border border-input rounded-md w-full text-sm font-medium appearance-none cursor-pointer focus-visible:ring-1"
+            >
               <option value="">Default</option>
               <option value="asc">Ascending</option>
               <option value="desc">Descending</option>
@@ -877,7 +938,8 @@ const ControlsFilterEngine = ({
             <Button
               variant="outline"
               onClick={onClearFilters}
-              className="text-muted-foreground text-rose-500 hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors h-9 px-3 py-5 border-red-400/50">
+              className="text-muted-foreground text-rose-500 hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors h-9 px-3 py-5 border-red-400/50"
+            >
               <X className="h-4 w-4 mr-2" />
               Clear Filters
             </Button>
@@ -885,14 +947,23 @@ const ControlsFilterEngine = ({
           <Button
             onClick={onSearch}
             disabled={isSearchDisabled}
-            className={cn("gap-2 font-medium ml-2", isSearchDisabled ? "opacity-50 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white")}>
+            className={cn(
+              "gap-2 font-medium ml-2",
+              isSearchDisabled
+                ? "opacity-50 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white",
+            )}
+          >
             <Search className="h-4 w-4 mr-2" />
             {isSearchDisabled ? "Invalid Parameters" : "Search"}
           </Button>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button onClick={onOpenCreate} className="gap-2 font-medium bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            onClick={onOpenCreate}
+            className="gap-2 font-medium bg-blue-600 hover:bg-blue-700 text-white"
+          >
             <Plus className="h-4 w-4" /> Add Trade Record
           </Button>
           <ExportModal

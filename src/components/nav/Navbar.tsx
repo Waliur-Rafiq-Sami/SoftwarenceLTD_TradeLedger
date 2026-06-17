@@ -8,12 +8,14 @@ import { Landmark, Menu, X } from "lucide-react";
 
 import NavActions from "../Header/NavActions"; // আপনার আগের NavActions
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
-// নেভিগেশন লিংকগুলোর লিস্ট (সহজে মেনটেইন করার জন্য)
+import logo from "../../../public/logo.png";
+
 const navLinks = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Holdings", href: "/holdings" },
-  { name: "Transactions", href: "/transactions" },
+  { name: "Holdings", href: "/dashboard/holdings" },
+  { name: "Transactions", href: "/dashboard/transactions" },
 ];
 
 export function Navbar() {
@@ -26,21 +28,24 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         {/* Left Section: Logo & Desktop Links */}
         <div className="flex items-center gap-8 flex-1">
-          {/* Logo Area */}
           <Link
             href="/dashboard"
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
-            <div className="p-2 bg-slate-900 dark:bg-slate-800 rounded-lg">
-              <Landmark className="h-5 w-5 text-white dark:text-blue-400" />
-            </div>
+            <Image
+              src={logo}
+              alt="ShareTrack Logo"
+              width={40}
+              height={10}
+              priority
+              className="object-contain"
+            />
             <span className="text-xl font-bold text-slate-900 dark:text-white">
               Share
               <span className="text-blue-600 dark:text-blue-500">Track</span>
             </span>
           </Link>
         </div>
-
         {/* Desktop Navigation Links (Hidden on Mobile) */}
         <div className="hidden md:flex items-center gap-6 flex-1">
           {navLinks.map((link) => {

@@ -123,7 +123,7 @@ export default function UnifiedProfileModal({
                   <TabsList className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 p-1 rounded-lg w-full grid grid-cols-2 mb-5">
                     <TabsTrigger
                       value="identity"
-                      className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-950 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-50 font-semibold text-xs tracking-wide uppercase transition-all shadow-sm"
+                      className="data-[state=active]:bg-white dark:data-[state=active]:bg-blue-950 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-50 font-semibold text-xs tracking-wide uppercase transition-all shadow-sm"
                     >
                       <User className="h-3.5 w-3.5 mr-2" /> Identity Specs
                     </TabsTrigger>

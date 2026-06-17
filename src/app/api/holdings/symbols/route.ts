@@ -22,7 +22,6 @@ export async function GET() {
     // .distinct() ডাটাবেস লেভেলেই ইউনিক নামগুলো ফিল্টার করে দেয়
     const symbols = await CompanyHolding.distinct("companyName", {
       userId: session.user._id,
-      totalQuantity: { $gt: 0 }, // শুধুমাত্র সেই কোম্পানি দেখাবে যেগুলোতে হোল্ডিং আছে
     });
 
     // ৩. Sorting for better UX (Alphabetical)

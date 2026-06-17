@@ -1,3 +1,4 @@
+import { Footer } from "@/components/Footer";
 import Header from "@/components/Header/Header";
 import { Navbar } from "@/components/nav/Navbar";
 
@@ -11,6 +12,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       {/* <Header /> */}
       <Navbar></Navbar>
       {children}
+      <Footer></Footer>
     </div>
   );
 }
