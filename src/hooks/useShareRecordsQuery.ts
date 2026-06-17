@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { IShareRecord } from "../model/ShareRecord";
+import { IShareRecord } from "../model/Record";
 
 export interface ShareRecordsFilters {
   companyName: string | null;
