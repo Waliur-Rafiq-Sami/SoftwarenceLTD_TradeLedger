@@ -28,7 +28,7 @@ const MetricCard = ({
   onAction,
   actionType,
 }: any) => (
-  <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white shadow-xl">
+  <Card className="overflow-hidden border-0 dark:bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 dark:text-white shadow-xl">
     <CardContent className="p-6">
       <div className="flex flex-col gap-4">
         {/* Header & Icon */}
@@ -49,7 +49,7 @@ const MetricCard = ({
             <Button
               size="sm"
               onClick={() => onAction("DEPOSIT")}
-              className="flex-1 h-10 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+              className="flex-1 h-10 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
             >
               <Plus className="h-4 w-4 mr-2" /> Deposit
             </Button>
@@ -57,7 +57,7 @@ const MetricCard = ({
               size="sm"
               variant="outline"
               onClick={() => onAction("WITHDRAW")}
-              className="flex-1 h-10 rounded-lg border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-white"
+              className="flex-1 border-red-300 h-10 rounded-lg bg-red-900/80 hover:bg-red-800 text-white"
             >
               <Minus className="h-4 w-4 mr-2" /> Withdraw
             </Button>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
           </div>
           <Button
             onClick={() => setIsTradeModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 shadow-md"
+            className="bg-blue-600 hover:bg-blue-700 shadow-md text-white"
           >
             <Plus className="h-4 w-4 mr-2" /> Add Transaction
           </Button>
@@ -165,10 +165,8 @@ export default function DashboardPage() {
       <TradeModal
         isOpen={isTradeModalOpen}
         onClose={() => setIsTradeModalOpen(false)}
-        onSuccess={() => console.log("Trade success")}
         onSuccess={() => {
-          console.log("Trade success");
-          refetch(); // Trigger update
+          refetch();
         }}
       />
 
