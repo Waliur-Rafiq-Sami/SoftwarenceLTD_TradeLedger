@@ -92,7 +92,7 @@ export function TransactionReverseModal({
       if (onSuccess) onSuccess();
       onClose();
       toast.success({
-        title: "",
+        title: `${transaction.actionType} for ${transaction.companyName} reversed successfully.`,
       });
     } catch (err: any) {
       setApiError(err.message || "An unexpected system error occurred.");

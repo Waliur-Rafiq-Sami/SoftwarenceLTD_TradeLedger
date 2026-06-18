@@ -33,7 +33,18 @@ export function TransactionTable({
   const [apiError, setApiError] = useState<string | null>(null);
 
   return (
-    <div className="relative overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm scrollbar-thin">
+    <div
+      className="relative overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm scrollbar-thin
+       
+                  [&::-webkit-scrollbar]:h-2 
+                  [&::-webkit-scrollbar-track]:bg-slate-100 
+                  dark:[&::-webkit-scrollbar-track]:bg-slate-900/50 
+                  [&::-webkit-scrollbar-thumb]:bg-slate-300 
+                  dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 
+                  [&::-webkit-scrollbar-thumb]:rounded-full 
+                  hover:[&::-webkit-scrollbar-thumb]:bg-slate-400 
+                  dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600"
+    >
       <table className="w-full text-left border-collapse min-w-[800px]">
         <TransactionTableHeader
           currentSortBy={currentSortBy}
