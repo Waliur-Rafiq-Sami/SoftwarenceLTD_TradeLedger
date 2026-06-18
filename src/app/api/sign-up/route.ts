@@ -16,6 +16,7 @@
 //       address,
 //       profession,
 //     } = await request.json();
+
 //     console.log("[sign-up] request received", {
 //       username,
 //       email,
@@ -25,6 +26,8 @@
 //       profession,
 //     });
 
+//     // 1. Checks ONLY for verified users. If a username exists but is unverified,
+//     // it will pass through, meaning unverified usernames are not unique.
 //     const existingVerifiedUserByUsername = await UserModel.findOne({
 //       username,
 //       isVerified: true,
@@ -84,14 +87,37 @@
 //       await newUser.save();
 //     }
 
-//     // Send verification email
+//     // 2. Send verification email
 //     const emailResponse = await sendVerificationEmail(
 //       email,
 //       username,
 //       verifyCode,
 //     );
+
 //     console.log("[sign-up] sendVerificationEmail response", emailResponse);
+
 //     if (!emailResponse.success) {
+//       const resendWarningText =
+//         "You can only send testing emails to your own email address";
+
+//       // Check if the failure is specifically due to Resend's free-tier domain restriction
+//       if (
+//         emailResponse.message &&
+//         emailResponse.message.includes(resendWarningText)
+//       ) {
+//         return Response.json(
+//           {
+//             verifyCode: verifyCode, ///////////////////////////////
+//             success: true,
+//             redirectToVerify: true,
+//             message:
+//               "User registered, but email was blocked by Resend testing limitations. Redirecting to verification page.",
+//           },
+//           { status: 201 }, // Return a 201 so your frontend handles it as a success/redirect
+//         );
+//       }
+
+//       // Any other genuine email error
 //       return Response.json(
 //         {
 //           success: false,
@@ -101,10 +127,13 @@
 //       );
 //     }
 
+//     // Standard successful response
 //     return Response.json(
 //       {
+//         verifyCode: verifyCode, ///////////////////////////////
 //         success: true,
 //         message: "User registered successfully. Please verify your account.",
+//         email: email,
 //       },
 //       { status: 201 },
 //     );
@@ -129,7 +158,15 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, email, password, dateOfBirth, phoneNumber, address, profession } = await request.json();
+    const {
+      username,
+      email,
+      password,
+      dateOfBirth,
+      phoneNumber,
+      address,
+      profession,
+    } = await request.json();
 
     console.log("[sign-up] request received", {
       username,
@@ -140,8 +177,7 @@ export async function POST(request: Request) {
       profession,
     });
 
-    // 1. Checks ONLY for verified users. If a username exists but is unverified,
-    // it will pass through, meaning unverified usernames are not unique.
+    // 1. Checks ONLY for verified users.
     const existingVerifiedUserByUsername = await UserModel.findOne({
       username,
       isVerified: true,
@@ -202,22 +238,32 @@ export async function POST(request: Request) {
     }
 
     // 2. Send verification email
-    const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+    const emailResponse = await sendVerificationEmail(
+      email,
+      username,
+      verifyCode,
+    );
 
     console.log("[sign-up] sendVerificationEmail response", emailResponse);
 
     if (!emailResponse.success) {
-      const resendWarningText = "You can only send testing emails to your own email address";
+      const resendWarningText =
+        "You can only send testing emails to your own email address";
 
       // Check if the failure is specifically due to Resend's free-tier domain restriction
-      if (emailResponse.message && emailResponse.message.includes(resendWarningText)) {
+      if (
+        emailResponse.message &&
+        emailResponse.message.includes(resendWarningText)
+      ) {
         return Response.json(
           {
+            verifyCode: verifyCode, // TEST MODE
             success: true,
             redirectToVerify: true,
-            message: "User registered, but email was blocked by Resend testing limitations. Redirecting to verification page.",
+            message:
+              "User registered, but email was blocked by Resend testing limitations. Redirecting to verification page.",
           },
-          { status: 201 }, // Return a 201 so your frontend handles it as a success/redirect
+          { status: 201 },
         );
       }
 
@@ -234,6 +280,7 @@ export async function POST(request: Request) {
     // Standard successful response
     return Response.json(
       {
+        verifyCode: verifyCode, // TEST MODE
         success: true,
         message: "User registered successfully. Please verify your account.",
         email: email,
